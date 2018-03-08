@@ -1,4 +1,4 @@
-package example
+package bluish
 import scala.scalajs.js.annotation.JSExport
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -11,6 +11,19 @@ case class Point(x: Int, y: Int){
 
 @JSExport
 object ScalaJSExample {
+
+  val simpleLevel = """
+   ......................
+   ..#................#..
+   ..#..............=.#..
+   ..#.........o.o....#..
+   ..#.@......#####...#..
+   ..#####............#..
+   ......#++++++++++++#..
+   ......##############..
+   ......................
+   """
+
   @JSExport
   def main(canvas: html.Canvas): Unit = {
     val ctx = canvas.getContext("2d")
