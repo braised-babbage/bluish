@@ -51,10 +51,13 @@ object Actor {
 }
 
 
-class Level(blocks: Array[Array[Block]]) {
-  override def toString: String = {
+case class Level(
+  background: Array[Array[Block]],
+  actors: Seq[Actor] ) {
+
+  def unparse: String = {
     val lines =
-      for (row <- blocks)
+      for (row <- background)
       yield row.map(Block.char _).mkString("")
 
     lines.mkString("\n")
@@ -62,7 +65,7 @@ class Level(blocks: Array[Array[Block]]) {
 }
 
 object Level {
-  def parse(plan: String): (Level, Seq[Actor]) = {
+  def parse(plan: String): Level = {
     val rows = plan.trim.split("\n").map(_.trim)
     val width = rows(0).length
     val height = rows.length
@@ -89,6 +92,6 @@ object Level {
         if "@o|=v" contains char
       ) yield actor(char)(i,j)
 
-    (new Level(blocks), actors)
+    Level(blocks, actors)
   }
 }
