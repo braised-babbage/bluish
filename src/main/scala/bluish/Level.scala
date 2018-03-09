@@ -27,16 +27,27 @@ object Block {
 sealed trait Actor {
   def x: Double
   def y: Double
+  def width: Double 
+  def height: Double
 }
 
-case class Player(x: Double, y: Double) extends Actor
-case class Coin(x: Double, y: Double) extends Actor
+case class Player(x: Double, y: Double) extends Actor {
+  val width = 0.8
+  val height = 1.5
+}
+case class Coin(x: Double, y: Double) extends Actor {
+  val width = 0.6
+  val height = 0.6
+}
 
 sealed trait Path
 object BounceVertical extends Path
 object BounceHorizontal extends Path
 object Drip extends Path
-case class MovingLava(x: Double, y: Double, path: Path) extends Actor
+case class MovingLava(x: Double, y: Double, path: Path) extends Actor {
+  val width = 1.0
+  val height = 1.0
+}
 
 
 object Actor {
@@ -62,6 +73,9 @@ case class Level(
 
     lines.mkString("\n")
   }
+
+  def width: Int = background(0).length
+  def height: Int = background.length
 }
 
 object Level {

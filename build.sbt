@@ -1,6 +1,6 @@
 enablePlugins(ScalaJSPlugin, WorkbenchPlugin)
 
-name := "Example"
+name := "bluish"
 
 version := "0.1-SNAPSHOT"
 
