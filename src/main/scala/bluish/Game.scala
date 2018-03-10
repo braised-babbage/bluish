@@ -1,6 +1,7 @@
 package bluish
 
 sealed trait GameStatus
+object Starting extends GameStatus
 object Playing extends GameStatus
 object Won extends GameStatus
 object Lost extends GameStatus

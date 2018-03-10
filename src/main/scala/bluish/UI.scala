@@ -6,7 +6,7 @@ import org.scalajs.dom.html
 
 
 trait Graphics {
-  //def clear: Unit
+  def clear(): Unit
   def draw(state: State): Unit
   def update(state: State): Unit
   def scrollPlayerIntoView(state: State): Unit
@@ -18,17 +18,32 @@ trait KeyboardInterface {
   def keys: KeyState
 }
 
-class DomUI extends Graphics with KeyboardInterface {
+trait UI extends Graphics with KeyboardInterface
+
+class DomUI extends UI {
   import DomGraphics._
   val scale = 20
   val display = createElement("div", Map("class" -> "game"))
+  var background: Option[dom.Element] = None
   var foreground: Option[dom.Element] = None
 
 
   document.body.appendChild(display)
 
+  def clear = {
+    if (!background.isEmpty) {
+      display.removeChild(background.get)
+      background = None
+    }
+    if (!foreground.isEmpty) {
+      display.removeChild(foreground.get)
+      foreground = None
+    }
+  }
+
   def draw(s: State) = {
-    display.appendChild(drawGrid(s.level, scale))
+    background = Some(drawGrid(s.level, scale))
+    for (bg <- background) display.appendChild(bg)
     update(s)
   }
 
@@ -110,6 +125,7 @@ object DomGraphics {
     case Playing => "game playing"
     case Won => "game won"
     case Lost => "game lost"
+    case _ => "game"
   }
 
   def cssClass(actor: Actor): String = "actor " + (actor match {
