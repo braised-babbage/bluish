@@ -38,18 +38,18 @@ object ScalaJSExample {
   @JSExport
   def main(): Unit = {
 
-    val dt = 20.0 // milliseconds
+    var dt = 30.0 // milliseconds
     val ui = new DomUI()
 
 
     var currentLevel = 0
     var state = State(null, null, Starting)
-    var endTime = 1.0
+    var endTime = 0.5
     var intervalId = 0
 
     def run(): Unit = state.status match {
       case Starting => {
-          endTime = 1.0
+          endTime = 0.5
           ui.clear()
           val (level, actors) = Level.parse(Level.levels(currentLevel))
           state = State(level, actors, Playing)
@@ -65,8 +65,11 @@ object ScalaJSExample {
         if (currentLevel < Level.levels.length)
           state = State(null, null, Starting)
         else {
-          println("You win!")
-          dom.window.clearInterval(intervalId)
+          //dom.window.clearInterval(intervalId)
+          ui.clear()
+          dt *= 2
+          currentLevel = 0
+          state = State(null, null, Starting)
         }
       }
       case Lost => {
