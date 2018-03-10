@@ -23,6 +23,12 @@ object Graphics {
     case Lava => "lava"
   }
 
+  def cssClass(status: GameStatus): String = status match {
+    case Playing => "game playing"
+    case Won => "game won"
+    case Lost => "game lost"
+  }
+
   def cssClass(actor: Actor): String = "actor " + (actor match {
     case p: Player => "player"
     case c: Coin => "coin"

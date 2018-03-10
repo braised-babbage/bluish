@@ -24,8 +24,10 @@ object ScalaJSExample {
       return State(s.level, actors, Lost)
 
     for (actor <- actors) {
-      if (actor != player && actor.overlaps(player))
+      if (actor != player && actor.overlaps(player)) {
+        println(actor)
         newState = actor.collide(newState)
+      }
     }
     newState
   }
@@ -82,6 +84,7 @@ object ScalaJSExample {
       state = update(state, dt/1000)
       actorLayer = Graphics.drawActors(state.actors)
       display.appendChild(actorLayer)
+      display.setAttribute("class",Graphics.cssClass(state.status))
     }
 
     dom.window.addEventListener("keydown", track _)
