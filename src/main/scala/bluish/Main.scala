@@ -5,10 +5,7 @@ import dom.document
 import org.scalajs.dom.html
 import scala.util.Random
 
-case class Point(x: Int, y: Int){
-  def +(p: Point) = Point(x + p.x, y + p.y)
-  def /(d: Int) = Point(x / d, y / d)
-}
+
 
 @JSExportTopLevel("ScalaJSExample")
 object ScalaJSExample {
@@ -52,11 +49,11 @@ object ScalaJSExample {
   }
 
   def style(actor: Actor, scale: Int): String =
-    s"width: ${actor.width * scale}px; height: ${actor.height * scale}px; left: ${actor.x * scale}px; top: ${actor.y * scale}px;"
+    s"width: ${actor.size.x * scale}px; height: ${actor.size.y * scale}px; left: ${actor.pos.x * scale}px; top: ${actor.pos.y * scale}px;"
 
-  def drawActors(level: Level): dom.Element = {
+  def drawActors(actors: Seq[Actor]): dom.Element = {
     val elts =
-      for (actor <- level.actors) yield {
+      for (actor <- actors) yield {
        createElement("div",
          Map(
            "class" -> cssClass(actor),
@@ -67,10 +64,31 @@ object ScalaJSExample {
     createElement("div", Map(), elts)
   }
 
+  def update(s: State, dt: Double): State = {
+    val actors = s.actors.map(a => a.update(dt, s))
+    var newState = State(s.level, actors, s.status)
+
+    if (newState.status != Playing)
+      return newState
+
+    val player = newState.player
+
+    if (s.level.touches(player.pos, player.size, Lava))
+      return State(s.level, actors, Lost)
+
+    for (actor <- actors) {
+      if (actor != player && actor.overlaps(player))
+        newState = actor.collide(newState)
+    }
+    newState
+  }
+
+  val dt = 20.0
+
   @JSExport
   def main(): Unit = {
 
-    val level = Level.parse("""
+    val (level,actors) = Level.parse("""
           ......................
           ..#................#..
           ..#..............=.#..
@@ -90,7 +108,17 @@ object ScalaJSExample {
 
     document.body.appendChild(display)
 
-    display.appendChild(drawActors(level))
-    // dom.window.setInterval(() => run, 50)
+    var state = State(level, actors, Playing)
+    var actorLayer = drawActors(state.actors)
+    display.appendChild(actorLayer)
+
+    def run() = {
+      display.removeChild(actorLayer)
+      state = update(state, dt)
+      actorLayer = drawActors(state.actors)
+      display.appendChild(actorLayer)
+    }
+
+    dom.window.setInterval(() => run, dt)
   }
 }

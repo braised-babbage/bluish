@@ -1,5 +1,9 @@
 package bluish
 
+case class Vec(x: Double, y: Double){
+  def +(p: Vec) = Vec(x + p.x, y + p.y)
+  def *(d: Double) = Vec(x * d, y * d)
+}
 
 sealed trait Block
 
@@ -24,47 +28,8 @@ object Block {
     }
 }
 
-sealed trait Actor {
-  def x: Double
-  def y: Double
-  def width: Double 
-  def height: Double
-}
 
-case class Player(x: Double, y: Double) extends Actor {
-  val width = 0.8
-  val height = 1.5
-}
-case class Coin(x: Double, y: Double) extends Actor {
-  val width = 0.6
-  val height = 0.6
-}
-
-sealed trait Path
-object BounceVertical extends Path
-object BounceHorizontal extends Path
-object Drip extends Path
-case class MovingLava(x: Double, y: Double, path: Path) extends Actor {
-  val width = 1.0
-  val height = 1.0
-}
-
-
-object Actor {
-  def apply(char: Char)(i: Double, j: Double): Actor =
-    char match {
-      case '@' => Player(i,j)
-      case 'o' => Coin(i,j)
-      case '|' => MovingLava(i,j,BounceVertical)
-      case '=' => MovingLava(i,j,BounceHorizontal)
-      case 'v' => MovingLava(i,j,Drip)
-    }
-}
-
-
-case class Level(
-  background: Array[Array[Block]],
-  actors: Seq[Actor] ) {
+case class Level(background: Array[Array[Block]]) {
 
   def unparse: String = {
     val lines =
@@ -76,10 +41,34 @@ case class Level(
 
   def width: Int = background(0).length
   def height: Int = background.length
+
+  def blockAt(x: Int, y: Int) =
+    background(y)(x)
+
+
+  def touches(pos: Vec, size: Vec, blockType: Block) = {
+    import math.{floor, ceil}
+    val start = Vec(math.floor(pos.x), math.floor(pos.y))
+    val end = Vec(math.ceil(pos.x + size.x), math.ceil(pos.y + size.y))
+    val z = floor(pos.y)
+
+    def r(s: Double, e: Double) = floor(s).toInt until ceil(e).toInt
+
+    val blocks = for (
+      y <- r(pos.y, pos.y + size.y);
+      x <- r(pos.x, pos.x + size.x)
+    ) yield {
+      val outside = x < 0 || x >= width || y < 0 || y >= height
+      if (outside) Wall else blockAt(x,y)
+    }
+
+    blocks.exists(_ == blockType)
+  }
 }
 
+
 object Level {
-  def parse(plan: String): Level = {
+  def parse(plan: String): (Level, Seq[Actor]) = {
     val rows = plan.trim.split("\n").map(_.trim)
     val width = rows(0).length
     val height = rows.length
@@ -90,22 +79,14 @@ object Level {
       for (row <- rows)
       yield row.map(Block(_)).toArray
 
-    def actor(char: Char)(i: Double, j: Double) =
-    char match {
-      case '@' => Player(i,j)
-      case 'o' => Coin(i,j)
-      case '|' => MovingLava(i,j,BounceVertical)
-      case '=' => MovingLava(i,j,BounceHorizontal)
-      case 'v' => MovingLava(i,j,Drip)
-    }
 
     val actors =
       for (
         (row, j) <- rows.zipWithIndex;
         (char, i) <- row.zipWithIndex
         if "@o|=v" contains char
-      ) yield actor(char)(i,j)
+      ) yield Actor(char)(i,j)
 
-    Level(blocks, actors)
+    (Level(blocks),actors)
   }
 }
