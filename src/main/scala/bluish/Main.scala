@@ -7,33 +7,8 @@ import scala.util.Random
 
 
 
-@JSExportTopLevel("ScalaJSExample")
-object ScalaJSExample {
-
-
-  def update(s: State, dt: Double, keys: KeyState): State = {
-    val actors = s.actors.map(a => a.update(dt, s, keys))
-    var newState = State(s.level, actors, s.status)
-
-    if (newState.status != Playing)
-      return newState
-
-    val player = newState.player
-
-    if (s.level.touches(player.pos, player.size, Lava))
-      return State(s.level, actors, Lost)
-
-    for (actor <- actors) {
-      if (actor != player && actor.overlaps(player)) {
-        newState = actor.collide(newState)
-      }
-    }
-    newState
-  }
-
-
-
-
+@JSExportTopLevel("Bluish")
+object Bluish {
 
   @JSExport
   def main(): Unit = {
@@ -81,4 +56,25 @@ object ScalaJSExample {
     }
     intervalId = dom.window.setInterval(() => run, dt)
   }
+
+  def update(s: State, dt: Double, keys: KeyState): State = {
+    val actors = s.actors.map(a => a.update(dt, s, keys))
+    var newState = State(s.level, actors, s.status)
+
+    if (newState.status != Playing)
+      return newState
+
+    val player = newState.player
+
+    if (s.level.touches(player.pos, player.size, Lava))
+      return State(s.level, actors, Lost)
+
+    for (actor <- actors) {
+      if (actor != player && actor.overlaps(player)) {
+        newState = actor.collide(newState)
+      }
+    }
+    newState
+  }
+
 }
