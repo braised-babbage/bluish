@@ -25,9 +25,16 @@ class Player(x: Double, y: Double) extends Actor {
   def update(dt: Double, s: State) = this
 }
 
-class Coin(x: Double, y: Double) extends Actor {
-  val pos = Vec(x,y)
+class Coin(x: Double, y: Double,
+  wobblePhase: Double = math.random * math.Pi * 2) extends Actor {
+  val basePos = Vec(x,y)
+
+  val wobbleSpeed = 8
+  val wobbleDist = 0.07
+
+  val pos = Vec(x+0.2,y+0.1 + math.sin(wobblePhase)*wobbleDist)
   val size = Vec(0.6, 0.6)
+  
 
   def collide(s: State) = {
     val others = s.actors.filter(a => a != this)
@@ -40,7 +47,10 @@ class Coin(x: Double, y: Double) extends Actor {
     State(s.level, others, status)
   }
 
-  def update(dt: Double, s: State) = this
+  def update(dt: Double, s: State) = {
+    val wobble = wobblePhase + dt * wobbleSpeed
+    new Coin(basePos.x , basePos.y, wobble)
+  }
 }
 
 sealed trait Path
