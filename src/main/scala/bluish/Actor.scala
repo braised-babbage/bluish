@@ -6,7 +6,7 @@ sealed trait Actor {
 
   def collide(state: State): State
 
-  def update(dt: Double, state: State): Actor
+  def update(dt: Double, state: State, keys: KeyState): Actor
 
   def overlaps(that: Actor) = {
     this.pos.x + this.size.x > that.pos.x &&
@@ -16,13 +16,42 @@ sealed trait Actor {
   }
 }
 
-class Player(x: Double, y: Double) extends Actor {
-  val pos = Vec(x,y-0.5)
+class Player(x: Double, y: Double, speed: Vec = Vec(0,0)) extends Actor {
+  val pos = Vec(x,y)
   val size = Vec(0.8, 1.5)
 
   def collide(s: State) = s
 
-  def update(dt: Double, s: State) = this
+
+  val playerXSpeed = 7.0
+  val gravity = 30.0
+  val jumpSpeed = 17.0
+
+  def update(dt: Double, s: State, keys: KeyState) = {
+    val xSpeed = (
+      (if (keys.arrowLeft) -playerXSpeed else 0)
+      + (if (keys.arrowRight) playerXSpeed else 0)
+    )
+
+
+    val movedX = pos + Vec(xSpeed * dt, 0)
+    val updatedX = if (!s.level.touches(movedX, size, Wall)) movedX else pos
+
+    var ySpeed = speed.y + dt*gravity
+    val movedY = updatedX + Vec(0, ySpeed * dt)
+    val updated =
+      if (!s.level.touches(movedY, size, Wall))
+        movedY
+      else {
+        if (keys.arrowUp && ySpeed > 0)
+          ySpeed = -jumpSpeed
+        else
+          ySpeed = 0
+
+        updatedX
+      }
+    new Player(updated.x, updated.y, speed = Vec(xSpeed, ySpeed))
+  }
 }
 
 class Coin(x: Double, y: Double,
@@ -47,7 +76,7 @@ class Coin(x: Double, y: Double,
     State(s.level, others, status)
   }
 
-  def update(dt: Double, s: State) = {
+  def update(dt: Double, s: State, keys: KeyState) = {
     val wobble = wobblePhase + dt * wobbleSpeed
     new Coin(basePos.x , basePos.y, wobble)
   }
@@ -64,7 +93,7 @@ class MovingLava(x: Double, y: Double, speed: Vec, reset: Option[Vec] = None) ex
 
   def collide(s: State) = State(s.level, s.actors, Lost)
 
-  def update(dt: Double, s: State) = {
+  def update(dt: Double, s: State, keys: KeyState) = {
     val newPos = pos + speed*dt
     if (!s.level.touches(newPos, size, Wall)) {
       new MovingLava(newPos.x, newPos.y, speed, reset)
@@ -82,7 +111,7 @@ class MovingLava(x: Double, y: Double, speed: Vec, reset: Option[Vec] = None) ex
 object Actor {
   def apply(char: Char)(i: Double, j: Double): Actor =
     char match {
-      case '@' => new Player(i,j)
+      case '@' => new Player(i,j-0.5)
       case 'o' => new Coin(i,j)
       case '|' => new MovingLava(i,j,Vec(0,2))
       case '=' => new MovingLava(i,j,Vec(2,0))

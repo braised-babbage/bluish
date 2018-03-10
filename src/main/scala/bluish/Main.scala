@@ -5,14 +5,14 @@ import dom.document
 import org.scalajs.dom.html
 import scala.util.Random
 
-
+case class KeyState(arrowLeft: Boolean, arrowRight: Boolean, arrowUp: Boolean)
 
 @JSExportTopLevel("ScalaJSExample")
 object ScalaJSExample {
 
 
   def update(s: State, dt: Double): State = {
-    val actors = s.actors.map(a => a.update(dt, s))
+    val actors = s.actors.map(a => a.update(dt, s, keys))
     var newState = State(s.level, actors, s.status)
 
     if (newState.status != Playing)
@@ -28,6 +28,23 @@ object ScalaJSExample {
         newState = actor.collide(newState)
     }
     newState
+  }
+
+  var keys = KeyState(false, false, false)
+
+  def track(e: dom.KeyboardEvent) = {
+    if (e.key == "ArrowLeft") {
+      keys = KeyState(e.`type` == "keydown", keys.arrowRight, keys.arrowUp)
+      e.preventDefault()
+    }
+    if (e.key == "ArrowRight") {
+      keys = KeyState(keys.arrowLeft, e.`type` == "keydown", keys.arrowUp)
+      e.preventDefault()
+    }
+    if (e.key == "ArrowUp") {
+      keys = KeyState(keys.arrowLeft, keys.arrowRight, e.`type` == "keydown")
+      e.preventDefault()
+    }
   }
 
 
@@ -66,6 +83,9 @@ object ScalaJSExample {
       actorLayer = Graphics.drawActors(state.actors)
       display.appendChild(actorLayer)
     }
+
+    dom.window.addEventListener("keydown", track _)
+    dom.window.addEventListener("keyup", track _)
 
     dom.window.setInterval(() => run, dt)
   }
