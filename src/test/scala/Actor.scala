@@ -5,7 +5,7 @@ import bluish._
 
 object ActorTests extends TestSuite {
   val tests = Tests {
-    'overlaps - {
+    "overlaps" - {
       // this is peeking @ Coin's size
       val a = new Coin(2,2)
       val b = new Coin(2.5,2.5)

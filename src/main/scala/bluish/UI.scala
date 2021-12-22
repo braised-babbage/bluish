@@ -30,7 +30,7 @@ class DomUI extends UI {
 
   document.body.appendChild(display)
 
-  def clear = {
+  def clear(): Unit = {
     if (!background.isEmpty) {
       display.removeChild(background.get)
       background = None
@@ -85,18 +85,17 @@ class DomUI extends UI {
   var keys = KeyState(false, false, false)
 
   def track(e: dom.KeyboardEvent) = {
-      if (e.key == "ArrowLeft") {
-      keys = KeyState(e.`type` == "keydown", keys.arrowRight, keys.arrowUp)
-      e.preventDefault()
-    }
-    if (e.key == "ArrowRight") {
-      keys = KeyState(keys.arrowLeft, e.`type` == "keydown", keys.arrowUp)
-      e.preventDefault()
-    }
-    if (e.key == "ArrowUp") {
-      keys = KeyState(keys.arrowLeft, keys.arrowRight, e.`type` == "keydown")
-      e.preventDefault()
-    }
+    e.key match {
+      case "ArrowLeft" => {
+        keys = KeyState(e.`type` == "keydown", keys.arrowRight, keys.arrowUp)
+        e.preventDefault()}
+      case "ArrowRight" => {
+        keys = KeyState(keys.arrowLeft, e.`type` == "keydown", keys.arrowUp)
+        e.preventDefault()}
+      case "ArrowUp" => {
+        keys = KeyState(keys.arrowLeft, keys.arrowRight, e.`type` == "keydown")
+        e.preventDefault()}
+      }
   }
 
   dom.window.addEventListener("keydown", track _)

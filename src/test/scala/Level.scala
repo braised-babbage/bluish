@@ -17,7 +17,7 @@ object LevelTests extends TestSuite {
           ......................
         """
 
-    'parseTrivial - {
+    "parseTrivial" - {
       val (level,actors) = Level.parse("""
          ..
          ..
@@ -26,7 +26,7 @@ object LevelTests extends TestSuite {
       assert(actors.length == 0)
       assert(level.unparse == "..\n..")
     }
-    'parseBigger - {
+    "parseBigger" - {
       val (level,actors) = Level.parse(simpleLevel)
 
       val (bg,bga) = Level.parse(simpleLevel)
@@ -37,18 +37,18 @@ object LevelTests extends TestSuite {
     }
 
     // todo: tests for a lot of stuff...
-    'blockAt - {
+    "blockAt" - {
       val (level, actors) = Level.parse(simpleLevel)
-      * - assert(level.blockAt(0,0) == Empty)
-      * - assert(level.blockAt(2,1) == Wall)
+      assert(level.blockAt(0,0) == Empty)
+      assert(level.blockAt(2,1) == Wall)
     }
-    'touches - {
-      val (level, actors) = Level.parse(simpleLevel)
-      * - assert(level.touches(Vec(0,0), Vec(1,1), Empty))
-      * - assert(level.touches(Vec(2,1), Vec(1,1), Wall))
-      * - assert(level.touches(Vec(2,0), Vec(2,2), Empty))
-      * - assert(level.touches(Vec(2,0), Vec(2,2), Wall))
 
+    "touches" - {
+      val (level, actors) = Level.parse(simpleLevel)
+      assert(level.touches(Vec(0,0), Vec(1,1), Empty))
+      assert(level.touches(Vec(2,1), Vec(1,1), Wall))
+      assert(level.touches(Vec(2,0), Vec(2,2), Empty))
+      assert(level.touches(Vec(2,0), Vec(2,2), Wall))
     }
   }
 }

@@ -1,17 +1,21 @@
-enablePlugins(ScalaJSPlugin, WorkbenchPlugin)
+enablePlugins(ScalaJSPlugin)
 
 name := "bluish"
 
-version := "0.1-SNAPSHOT"
+lazy val root = project
+  .in(file("."))
+  .settings(
+    name := "bluish",
+    version := "0.1-SNAPSHOT",
 
-scalaVersion := "2.11.8"
+    scalaVersion := "3.1.0",
+    scalaJSUseMainModuleInitializer := true,
 
-scalaVersion in ThisBuild := "2.11.8"
+    libraryDependencies ++= Seq(
+      "org.scala-js" %%% "scalajs-dom" % "2.0.0",
+      "com.lihaoyi" %%% "scalatags" % "0.11.0",
+      "com.lihaoyi" %%% "utest" % "0.7.10" % "test",
+    ),
 
-libraryDependencies ++= Seq(
-  "org.scala-js" %%% "scalajs-dom" % "0.9.1",
-  "com.lihaoyi" %%% "scalatags" % "0.6.1",
-  "com.lihaoyi" %%% "utest" % "0.6.3" % "test"
-)
-
-testFrameworks += new TestFramework("utest.runner.Framework")
+    testFrameworks += new TestFramework("utest.runner.Framework"),
+  )

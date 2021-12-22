@@ -11,7 +11,7 @@ import scala.util.Random
 object Bluish {
 
   @JSExport
-  def main(): Unit = {
+  @main def main(): Unit = {
 
     var dt = 30.0 // milliseconds
     val ui = new DomUI()
@@ -54,7 +54,7 @@ object Bluish {
           endTime -= dt/1000
       }
     }
-    intervalId = dom.window.setInterval(() => run, dt)
+    intervalId = dom.window.setInterval(() => run(), dt)
   }
 
   def update(s: State, dt: Double, keys: KeyState): State = {
